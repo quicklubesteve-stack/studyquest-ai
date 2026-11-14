@@ -191,7 +191,7 @@ export function analyzeStudyMaterial(
     front: `What is the significance or definition of **${c.term}** in "${documentTitle}"?`,
     back: `${c.definition} (Source: ${c.citation})`,
     category: documentTitle.replace(/\.[^/.]+$/, ""),
-    difficulty: idx % 2 === 0 ? "easy" : "medium",
+    boxLevel: 1,
   }));
 
   // 4. Generate Practice Exam Questions (Multiple Choice & Fill-in-Blank)

@@ -366,4 +366,52 @@ test.describe("StudyQuest AI — Core Application & Phase 2 Journeys", () => {
     await page.getByRole("button", { name: /Close Study Material Studio/i }).click({ force: true });
     await expect(page.getByText(/Study Material Studio & AI Synthesizer/i)).not.toBeVisible();
   });
+
+  test("manages subscription plans, activates Stripe test mode Plus tier, and views privacy export", async ({ page }) => {
+    await page.addInitScript(() => {
+      const profile = {
+        id: "test-billing-user",
+        name: "Billing Explorer",
+        educationTier: "college",
+        selectedSubjects: ["comp-sci"],
+        learningGoal: "career",
+        dailyStudyMinutes: 30,
+        learningPreference: "mixed",
+        wantsPlacementQuiz: false,
+        isOnboarded: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem("studyquest_user_profile_v1", JSON.stringify(profile));
+    });
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: /Learn Your Way. Play Your Way. Grow Every Day./i })).toBeVisible();
+
+    // Open Plans Modal from Footer
+    await page.getByRole("button", { name: /View Plans & Features/i }).click({ force: true });
+    await expect(page.getByRole("heading", { name: /StudyQuest Plans & Privacy/i })).toBeVisible();
+
+    // Verify Free & Plus plan cards
+    await expect(page.getByText("Core Explorer", { exact: true })).toBeVisible();
+    await expect(page.getByText("StudyQuest Plus", { exact: true })).toBeVisible();
+    await expect(page.getByText("CAD $9.99 / month")).toBeVisible();
+
+    // Activate Plus in Stripe Test Mode if not already active
+    const activateBtn = page.getByRole("button", { name: /Activate in Test Mode/i });
+    if (await activateBtn.isVisible()) {
+      await activateBtn.click({ force: true });
+      await expect(page.getByText(/StudyQuest Plus activated in Stripe Test Mode/i)).toBeVisible();
+    }
+
+    // Verify Active Plan Badge
+    await expect(page.getByText(/StudyQuest Plus Active/i)).toBeVisible();
+
+    // Verify Data Portability & Privacy options
+    await expect(page.getByRole("button", { name: /Download Personal Data/i })).toBeVisible();
+    await expect(page.getByRole("button", { name: /Delete My Account/i })).toBeVisible();
+
+    // Close Plans Modal
+    await page.getByRole("button", { name: /Close Plans Modal/i }).click({ force: true });
+    await expect(page.getByRole("heading", { name: /StudyQuest Plans & Privacy/i })).not.toBeVisible();
+  });
 });

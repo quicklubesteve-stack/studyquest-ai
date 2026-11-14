@@ -549,7 +549,6 @@ export default function StudyMaterialsModal({
                       ) : (
                         <FlashcardChallengeActivity
                           cards={selectedMaterial.flashcards}
-                          topicTitle={`Material Deck: ${selectedMaterial.fileName}`}
                           onComplete={() => {
                             if (onEarnXP) onEarnXP(40);
                           }}

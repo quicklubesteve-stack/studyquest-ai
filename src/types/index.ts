@@ -52,6 +52,17 @@ export interface QuizQuestion {
   difficulty: "beginner" | "intermediate" | "advanced";
 }
 
+export interface Question {
+  id: string;
+  type?: "multiple-choice" | "fill-blank";
+  prompt: string;
+  choices: string[];
+  correctAnswerIndex: number;
+  explanation: string;
+  hints: string[];
+  xpReward?: number;
+}
+
 export interface Lesson {
   id: string;
   subjectId: string;

@@ -1,6 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/auth";
 import { TutorRequestSchema } from "@/lib/ai/types";
 import { askAITutor } from "@/lib/ai/engine";
+import { checkAndIncrementAiQuota } from "@/lib/billing/tierLimits";
+import { prisma } from "@/lib/prisma";
 
 // Simple in-memory sliding window rate limiter (max 30 requests per minute per IP)
 const rateLimitMap = new Map<string, { count: number; resetTime: number }>();
@@ -47,6 +51,24 @@ export async function POST(req: NextRequest) {
         { error: "Invalid tutor request", details: parsed.error.format() },
         { status: 400 }
       );
+    }
+
+    // Daily Subscription Quota Enforcement (Free: 15/day, Plus: Unlimited)
+    const session = await getServerSession(authOptions);
+    let userId = (session?.user as { id?: string })?.id;
+    if (!userId) {
+      const demoUser = await prisma.user.findFirst({ where: { role: "LEARNER" } });
+      if (demoUser) userId = demoUser.id;
+    }
+
+    if (userId) {
+      const quota = await checkAndIncrementAiQuota(userId);
+      if (!quota.allowed) {
+        return NextResponse.json(
+          { error: quota.error || "Daily AI limit reached." },
+          { status: 429 }
+        );
+      }
     }
 
     const tutorResult = await askAITutor(parsed.data);

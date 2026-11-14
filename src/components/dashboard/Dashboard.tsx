@@ -26,6 +26,7 @@ import { AITutorModal } from "@/components/tutor/AITutorModal";
 import { ActivityHubModal } from "@/components/activities/ActivityHubModal";
 import { SpacedRepetitionCenterModal } from "@/components/activities/SpacedRepetitionCenterModal";
 import StudyMaterialsModal from "@/components/materials/StudyMaterialsModal";
+import PricingModal from "@/components/billing/PricingModal";
 
 export function Dashboard({ onOpenOnboarding }: { onOpenOnboarding?: () => void }) {
   const { profile, progress, setActiveLesson, a11y, recordActivity } = useAppStore();
@@ -384,80 +385,11 @@ export function Dashboard({ onOpenOnboarding }: { onOpenOnboarding?: () => void 
         </button>
       </div>
 
-      {/* Pricing Modal */}
-      {showPricingModal && (
-        <div className="fixed inset-0 z-50 bg-slate-900/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-2xl w-full p-6 sm:p-8 border border-slate-200 shadow-2xl space-y-6">
-            <div className="flex items-center justify-between border-b pb-4">
-              <div>
-                <h3 className="text-xl font-black text-slate-900">StudyQuest Plans</h3>
-                <p className="text-xs text-slate-500">
-                  Transparent, non-coercive pricing. Essential education is always free.
-                </p>
-              </div>
-              <button
-                onClick={() => setShowPricingModal(false)}
-                className="text-slate-400 hover:text-slate-600 font-bold text-sm"
-              >
-                ✕ Close
-              </button>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Free Plan */}
-              <div className="border border-slate-200 rounded-2xl p-5 space-y-4">
-                <div>
-                  <h4 className="font-black text-base text-slate-900">Core Explorer</h4>
-                  <div className="text-2xl font-black text-slate-900 mt-1">Free Forever</div>
-                  <p className="text-xs text-slate-500">Everything needed to learn and excel.</p>
-                </div>
-                <ul className="space-y-2 text-xs text-slate-700">
-                  <li>✓ Complete access to all 7+ sample grade subjects</li>
-                  <li>✓ Interactive quizzes, games & activities</li>
-                  <li>✓ Spaced repetition & Leitner box review</li>
-                  <li>✓ Standard AI Socratic hints</li>
-                  <li>✓ WCAG 2.2 AA accessibility tools</li>
-                </ul>
-                <div className="text-xs font-bold text-emerald-600 bg-emerald-50 p-2 rounded-lg text-center">
-                  Current Active Plan
-                </div>
-              </div>
-
-              {/* Plus Plan */}
-              <div className="border-2 border-quest-600 rounded-2xl p-5 space-y-4 bg-quest-50/30">
-                <div>
-                  <div className="flex items-center justify-between">
-                    <h4 className="font-black text-base text-quest-900">StudyQuest Plus</h4>
-                    <span className="text-[10px] font-bold bg-quest-600 text-white px-2 py-0.5 rounded-full">
-                      Proposed
-                    </span>
-                  </div>
-                  <div className="text-2xl font-black text-slate-900 mt-1">
-                    CAD $9.99 <span className="text-xs text-slate-500 font-normal">/ month</span>
-                  </div>
-                  <p className="text-xs text-slate-500">For accelerated, power learners & families.</p>
-                </div>
-                <ul className="space-y-2 text-xs text-slate-700">
-                  <li>✓ Everything in Core Explorer</li>
-                  <li>✓ Advanced conversational voice tutor</li>
-                  <li>✓ Upload PDF & DOCX notes for instant study packs</li>
-                  <li>✓ Deep multi-child parent analytics</li>
-                  <li>✓ Highest priority AI reasoning</li>
-                </ul>
-                <button
-                  onClick={() => {
-                    alert("Stripe Test Mode Integration is scheduled for Phase 6. All features remain open during Phase 1 testing!");
-                    setShowPricingModal(false);
-                  }}
-                  className="w-full py-2 bg-quest-600 hover:bg-quest-700 text-white font-bold text-xs rounded-xl shadow-sm transition"
-                >
-                  Explore in Test Mode
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Pricing & Plan Management Modal */}
+      <PricingModal
+        isOpen={showPricingModal}
+        onClose={() => setShowPricingModal(false)}
+      />
 
       {/* AI Tutor Modal */}
       {showTutor && <AITutorModal onClose={() => setShowTutor(false)} />}

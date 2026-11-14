@@ -41,6 +41,14 @@ model User {
 
   // Study Materials uploaded by user
   studyMaterials  StudyMaterial[]
+
+  // Subscription & Tier Limits (CAD $9.99/mo Plus Tier)
+  subscriptionTier     String   @default("FREE") // FREE, PLUS
+  stripeCustomerId     String?
+  stripeSubscriptionId String?
+  subscriptionStatus   String?  // active, trialing, canceled
+  dailyAiQueriesCount  Int      @default(0)
+  lastAiQueryDate      DateTime @default(now())
 }
 
 model Profile {

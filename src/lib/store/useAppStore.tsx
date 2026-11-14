@@ -78,6 +78,7 @@ interface AppContextType {
     hintsUsed: number
   ) => { earnedXP: number; newMastery: number };
   completeLesson: (lessonId: string) => void;
+  recordActivity: (earnedXP: number) => void;
   setActiveLesson: (lesson: Lesson | null) => void;
   resetAllProgress: () => void;
   exportData: () => string;
@@ -336,6 +337,18 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const recordActivity = (earnedXP: number) => {
+    setProgress((prev) => {
+      const totalXP = prev.xp + earnedXP;
+      const { level } = calculateLevel(totalXP);
+      return {
+        ...prev,
+        xp: totalXP,
+        level,
+      };
+    });
+  };
+
   const resetAllProgress = () => {
     setProfile(DEFAULT_PROFILE);
     setProgress(DEFAULT_PROGRESS);
@@ -383,6 +396,7 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
         updateA11y,
         recordQuestionAttempt,
         completeLesson,
+        recordActivity,
         setActiveLesson,
         resetAllProgress,
         exportData,
