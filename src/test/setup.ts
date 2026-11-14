@@ -1,4 +1,5 @@
 import "@testing-library/jest-dom";
+import { vi } from "vitest";
 
 // Polyfill window.matchMedia for jsdom
 Object.defineProperty(window, "matchMedia", {
@@ -26,3 +27,11 @@ Object.defineProperty(window, "speechSynthesis", {
     getVoices: () => [],
   },
 });
+
+// Mock next-auth/react
+vi.mock("next-auth/react", () => ({
+  useSession: () => ({ data: null, status: "unauthenticated" }),
+  signIn: vi.fn(),
+  signOut: vi.fn(),
+  SessionProvider: ({ children }: any) => children,
+}));

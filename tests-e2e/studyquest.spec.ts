@@ -1,8 +1,7 @@
 import { test, expect } from "@playwright/test";
 
-test.describe("StudyQuest AI — Core Application Journeys", () => {
+test.describe("StudyQuest AI — Core Application & Phase 2 Journeys", () => {
   test("completes 6-step onboarding and lands on personalized dashboard", async ({ page }) => {
-    // Ensure clean state for onboarding test
     await page.addInitScript(() => {
       localStorage.clear();
     });
@@ -52,7 +51,6 @@ test.describe("StudyQuest AI — Core Application Journeys", () => {
   });
 
   test("runs an interactive lesson, uses hints, and checks answers", async ({ page }) => {
-    // Inject onboarded profile before page script initializes
     await page.addInitScript(() => {
       const profile = {
         id: "test-user",
@@ -105,8 +103,94 @@ test.describe("StudyQuest AI — Core Application Journeys", () => {
     await expect(page.getByText(/Excellent work! Correct answer!/i)).toBeVisible();
   });
 
+  test("signs in with demo student account and opens AI Tutor", async ({ page }) => {
+    await page.addInitScript(() => {
+      const profile = {
+        id: "guest-user",
+        name: "Adventurous Learner",
+        educationTier: "elementary",
+        selectedSubjects: ["elem-math"],
+        learningGoal: "skill_building",
+        dailyStudyMinutes: 15,
+        learningPreference: "mixed",
+        wantsPlacementQuiz: false,
+        isOnboarded: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem("studyquest_user_profile_v1", JSON.stringify(profile));
+    });
+    await page.goto("/");
+
+    // Click Sign In button in Header
+    const signInBtn = page.locator("header").getByRole("button", { name: /Sign In/i });
+    await signInBtn.click();
+
+    // Verify Auth Modal is open
+    await expect(page.getByText(/Sign In to StudyQuest/i)).toBeVisible();
+
+    // Click Demo Student Quick Login
+    const demoStudentBtn = page.getByRole("button", { name: /Alex \(Student\)/i });
+    await demoStudentBtn.click();
+
+    // Verify User Account reflects Student
+    await expect(page.getByText(/Alex/i).first()).toBeVisible();
+
+    // Open AI Tutor
+    const aiBtn = page.locator("header").getByRole("button", { name: /Ask AI/i });
+    await aiBtn.click();
+
+    // Verify AI Tutor Dialog is visible
+    await expect(page.getByText(/Personal AI Socratic Tutor/i)).toBeVisible();
+    await expect(page.getByText(/Tuned for: elementary/i)).toBeVisible();
+  });
+
+  test("signs in with demo parent account and accesses Parent Portal", async ({ page }) => {
+    await page.addInitScript(() => {
+      const profile = {
+        id: "guest-user",
+        name: "Adventurous Learner",
+        educationTier: "elementary",
+        selectedSubjects: ["elem-math"],
+        learningGoal: "skill_building",
+        dailyStudyMinutes: 15,
+        learningPreference: "mixed",
+        wantsPlacementQuiz: false,
+        isOnboarded: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem("studyquest_user_profile_v1", JSON.stringify(profile));
+    });
+    await page.goto("/");
+
+    // Click Sign In
+    const signInBtn = page.locator("header").getByRole("button", { name: /Sign In/i });
+    await signInBtn.click();
+
+    // Verify Auth Modal is open
+    await expect(page.getByText(/Sign In to StudyQuest/i)).toBeVisible();
+
+    // Click Demo Parent Login
+    const demoParentBtn = page.getByRole("button", { name: /Sarah \(Parent\)/i });
+    await demoParentBtn.click();
+
+    // Verify User Account reflects Parent
+    await expect(page.getByText(/Sarah/i).first()).toBeVisible();
+
+    // Verify Parent Portal button is visible in header
+    const parentPortalBtn = page.locator("header").getByRole("button", { name: /Parent Portal/i });
+    await expect(parentPortalBtn).toBeVisible();
+    await parentPortalBtn.click();
+
+    // Verify Parent Supervision Modal contents
+    await expect(page.getByText(/Parent Supervision Portal/i)).toBeVisible();
+    await expect(page.getByText(/COPPA Verified/i)).toBeVisible();
+    await expect(page.getByText(/Alex Explorer \(Grade 4\)/i)).toBeVisible();
+    await expect(page.getByText(/Parental Safeguards & Screen Limits/i)).toBeVisible();
+  });
+
   test("accessibility toolbar toggles high contrast and text scale", async ({ page }) => {
-    // Inject onboarded profile before page script initializes
     await page.addInitScript(() => {
       const profile = {
         id: "test-user",

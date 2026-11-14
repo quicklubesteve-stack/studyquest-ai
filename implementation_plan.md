@@ -65,3 +65,51 @@
   - Vitest unit tests for the deterministic adaptive engine, curriculum loader, and storage sync.
   - Component tests for the onboarding flow and quiz runner.
   - End-to-end browser verification tests.
+
+---
+
+## Phase 2: Authentication, Persistence & Role Architecture (Completed)
+
+- [x] **Database & ORM Layer**:
+  - Configured Prisma schema (`prisma/schema.prisma`) with support for SQLite (`dev.db`) locally and PostgreSQL in production.
+  - Core models: `User`, `Profile`, `UserProgress`, `TopicMastery`, `QuizAttempt`, `Classroom`, `Account`, `Session`.
+  - Created automated database seed script (`prisma/seed.ts`) with 4 seeded demo accounts:
+    - Learner: `student@studyquest.ai` (Grade 4 Alex Explorer)
+    - Parent: `parent@studyquest.ai` (Sarah Explorer)
+    - Teacher: `teacher@studyquest.ai` (Mr. Henderson, manages cohort `QUEST4`)
+    - Admin: `admin@studyquest.ai` (Platform administrator)
+- [x] **Secure Authentication & RBAC**:
+  - Implemented NextAuth.js JWT session handling (`src/lib/auth.ts`, `src/app/api/auth/[...nextauth]/route.ts`).
+  - Added registration endpoint with Zod validation, bcrypt password hashing, and COPPA/PIPEDA guardian linkage for minors (`/api/auth/register`).
+  - Created accessible Sign In / Sign Up modal with 1-click demo account presets (`src/components/auth/AuthModal.tsx`).
+- [x] **Cloud Progress Sync Engine**:
+  - Developed bidirectional synchronization endpoint (`/api/sync`) bridging local browser storage and Prisma database models.
+  - Integrated debounced auto-sync into application store (`src/lib/store/useAppStore.tsx`).
+- [x] **Supervised Role Portals**:
+  - **Parent Supervision Portal** (`src/components/portals/ParentPortalModal.tsx` & `/api/family`): Linked children dashboard, screen time limiter, leaderboard visibility toggle, GDPR/PIPEDA account data export, and right-to-be-forgotten deletion flow.
+  - **Teacher Classroom Portal** (`src/components/portals/TeacherPortalModal.tsx` & `/api/classroom`): Classroom cohort rosters, join codes (`QUEST4`), real-time student mastery analytics, level distribution, and streak monitoring.
+  - **Admin System Portal** (`src/components/portals/AdminPortalModal.tsx`): System metrics, active user distribution by tier, database and AI provider health.
+- [x] **Phase 2 Verification**:
+  - 21 passing Vitest unit & integration tests covering scoring, curriculum, database operations, and authentication logic.
+  - 10 passing Playwright E2E browser tests across both **Desktop Chrome** (1024px+) and **Mobile Chrome** (375px+).
+  - 0-error production build (`next build`) across all 8 static and dynamic API routes.
+
+---
+
+## Phase 3: Personalized AI Tutor Engine & Gemini Integration (Next)
+
+- [ ] **Server-Side Gemini AI Service (`src/lib/ai/gemini.ts`)**:
+  - Server-side route handler `/api/tutor/chat` with rate limiting, input validation, and safety shields.
+  - Grounding in reviewed curriculum metadata and grade-level personas (Kindergarten through Senior adult).
+  - Structured Socratic inquiry prompts: provide hints and worked examples without doing assignments for the student.
+  - "Check for Understanding" response validation with Zod schemas.
+- [ ] **Multimodal Voice & Chat Tutor UI (`src/components/tutor/AITutorModal.tsx`)**:
+  - Live conversational UI with Socratic hint levels, worked examples, and "Teach-the-AI" mode.
+  - Integrated Web Speech API (SpeechRecognition and SpeechSynthesis) with graceful text-only fallback.
+  - Voice speed controls (0.75x to 1.5x) and full transcript logging.
+- [ ] **AI Safety, Child Safeguards & Citations**:
+  - PII scrubbing before sending payloads to AI provider.
+  - Explicit citations to approved curriculum topics and refusal to hallucinate facts.
+- [ ] **Phase 3 Test Suite**:
+  - Vitest tests for prompt generation, response schema validation, and fallback handling when API key is missing.
+  - Playwright E2E tests for Socratic dialogue, voice control toggles, and "Teach-the-AI" interaction.

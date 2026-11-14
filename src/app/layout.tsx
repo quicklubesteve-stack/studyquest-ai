@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import "./globals.css";
 import { AppProvider } from "@/lib/store/useAppStore";
+import { AuthProvider } from "@/components/providers/AuthProvider";
 import { AccessibilityBar } from "@/components/common/AccessibilityBar";
 
 export const metadata: Metadata = {
@@ -15,19 +16,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className="scroll-pt-20">
       <body className="min-h-screen flex flex-col antialiased">
-        <AppProvider>
-          {/* Skip link for keyboard accessibility */}
-          <a
-            href="#main-content"
-            className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-quest-600 text-white font-bold p-3 z-50 rounded-lg shadow-lg"
-          >
-            Skip to main content
-          </a>
-          <AccessibilityBar />
-          {children}
-        </AppProvider>
+        <AuthProvider>
+          <AppProvider>
+            {/* Skip link for keyboard accessibility */}
+            <a
+              href="#main-content"
+              className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 bg-quest-600 text-white font-bold p-3 z-50 rounded-lg shadow-lg"
+            >
+              Skip to main content
+            </a>
+            <AccessibilityBar />
+            {children}
+          </AppProvider>
+        </AuthProvider>
       </body>
     </html>
   );

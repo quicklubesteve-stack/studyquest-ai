@@ -1,6 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState } from "react";
+import { useSession } from "next-auth/react";
 import {
   UserProfile,
   UserProgress,
@@ -91,6 +92,76 @@ export function AppProvider({ children }: { children: React.ReactNode }) {
   const [a11y, setA11y] = useState<AccessibilitySettings>(DEFAULT_A11Y);
   const [activeLesson, setActiveLesson] = useState<Lesson | null>(null);
   const [isHydrated, setIsHydrated] = useState(false);
+
+  let session: any = null;
+  try {
+    const sessionRes = useSession();
+    session = sessionRes?.data;
+  } catch (e) {
+    // Graceful fallback for unit test setups without SessionProvider
+  }
+
+  // Sync from remote database on login
+  useEffect(() => {
+    if (!session?.user) return;
+
+    async function loadRemoteSync() {
+      try {
+        const res = await fetch("/api/sync");
+        if (res.ok) {
+          const data = await res.json();
+          if (data.profile) {
+            setProfile((prev) => ({
+              ...prev,
+              name: data.user.name,
+              educationTier: data.profile.educationTier as any,
+              learningPreference: data.profile.learningPreference as any,
+              dailyStudyMinutes: data.profile.dailyStudyMinutes,
+              learningGoal: data.profile.learningGoal as any,
+              isOnboarded: true,
+            }));
+          }
+          if (data.progress) {
+            setProgress((prev) => ({
+              ...prev,
+              xp: data.progress.xp,
+              level: data.progress.level,
+              streakDays: data.progress.streakDays,
+              completedLessonIds: data.progress.completedLessonIds || [],
+              achievements: data.progress.achievements || prev.achievements,
+            }));
+          }
+        }
+      } catch (err) {
+        console.warn("Could not sync remote progress:", err);
+      }
+    }
+
+    loadRemoteSync();
+  }, [session?.user?.email]);
+
+  // Debounced sync to database when user is authenticated
+  useEffect(() => {
+    if (!isHydrated || !session?.user) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        await fetch("/api/sync", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            profile,
+            progress,
+            topicMasteries: progress.topicMasteries,
+          }),
+        });
+      } catch (e) {
+        // Silent background sync error
+      }
+    }, 1500);
+
+    return () => clearTimeout(timer);
+  }, [progress, profile, isHydrated, session?.user]);
 
   // Hydrate state from localStorage safely on mount
   useEffect(() => {

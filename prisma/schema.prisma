@@ -1,0 +1,136 @@
+// Prisma Schema for StudyQuest AI
+// Multi-role authentication, progress tracking, and curriculum mastery
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             String    @id @default(cuid())
+  email          String    @unique
+  name           String
+  hashedPassword String
+  role           String    @default("LEARNER") // LEARNER, PARENT, TEACHER, ADMIN
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  // Multi-tier & Child-Parent Linkage
+  parentId       String?
+  parent         User?     @relation("FamilyLink", fields: [parentId], references: [id], onDelete: Cascade)
+  children       User[]    @relation("FamilyLink")
+
+  // Teacher-Student Classroom Linkage
+  classroomId    String?
+  classroom      Classroom? @relation(fields: [classroomId], references: [id])
+
+  // Profile & Preferences
+  profile        Profile?
+  progress       UserProgress?
+  topicMasteries TopicMastery[]
+  quizAttempts   QuizAttempt[]
+  sessions       Session[]
+  accounts       Account[]
+
+  // Classrooms taught (if Teacher)
+  teachingClasses Classroom[] @relation("ClassroomTeacher")
+}
+
+model Profile {
+  id                 String   @id @default(cuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  educationTier      String   @default("elementary")
+  learningPreference String   @default("mixed")
+  learningGoal       String   @default("skill_building")
+  dailyStudyMinutes  Int      @default(15)
+  avatarIcon         String   @default("Sparkles")
+  selectedSubjects   String   @default("[]") // JSON serialized string array
+  wantsPlacementQuiz Boolean  @default(false)
+  updatedAt          DateTime @updatedAt
+}
+
+model UserProgress {
+  id                  String   @id @default(cuid())
+  userId              String   @unique
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  xp                  Int      @default(0)
+  level               Int      @default(1)
+  streakDays          Int      @default(1)
+  lastActiveDate      DateTime @default(now())
+  completedLessonIds  String   @default("[]") // JSON serialized array
+  achievementsJson    String   @default("[]") // JSON serialized achievements
+  updatedAt           DateTime @updatedAt
+}
+
+model TopicMastery {
+  id                String   @id @default(cuid())
+  userId            String
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId          String
+  title             String
+  subjectId         String
+  masteryPercentage Int      @default(0) // 0 to 100
+  boxLevel          Int      @default(1) // 1 to 5 Leitner box
+  attemptsCount     Int      @default(0)
+  lastPracticed     DateTime @default(now())
+  nextReviewDate    DateTime @default(now())
+
+  @@unique([userId, lessonId])
+}
+
+model QuizAttempt {
+  id             String   @id @default(cuid())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  lessonId       String
+  questionId     String
+  selectedChoice Int
+  isCorrect      Boolean
+  hintsUsed      Int      @default(0)
+  earnedXP       Int      @default(0)
+  createdAt      DateTime @default(now())
+}
+
+model Classroom {
+  id          String   @id @default(cuid())
+  name        String
+  gradeLevel  String
+  code        String   @unique // Join code for students
+  teacherId   String
+  teacher     User     @relation("ClassroomTeacher", fields: [teacherId], references: [id], onDelete: Cascade)
+  students    User[]
+  createdAt   DateTime @default(now())
+}
+
+// NextAuth standard models
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
