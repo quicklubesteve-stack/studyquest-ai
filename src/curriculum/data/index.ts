@@ -1,4 +1,4 @@
-import { SubjectCategory } from "@/types";
+import { SubjectCategory, Lesson } from "@/types";
 
 export const SAMPLE_CURRICULUM: SubjectCategory[] = [
   // 1. Kindergarten Counting
@@ -556,3 +556,15 @@ Phishing is when an attacker sends a message pretending to be a trusted institut
     ],
   },
 ];
+
+export function getAllLessons(): Lesson[] {
+  return SAMPLE_CURRICULUM.flatMap((subject) => subject.lessons);
+}
+
+export function getLessonById(id: string): Lesson | undefined {
+  for (const subject of SAMPLE_CURRICULUM) {
+    const found = subject.lessons.find((l) => l.id === id);
+    if (found) return found;
+  }
+  return undefined;
+}

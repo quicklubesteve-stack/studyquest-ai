@@ -133,16 +133,37 @@ test.describe("StudyQuest AI — Core Application & Phase 2 Journeys", () => {
     const demoStudentBtn = page.getByRole("button", { name: /Alex \(Student\)/i });
     await demoStudentBtn.click();
 
-    // Verify User Account reflects Student
-    await expect(page.getByText(/Alex/i).first()).toBeVisible();
+    // Wait for Auth Modal to dismiss and reload to complete
+    await expect(page.getByText(/Sign In to StudyQuest/i)).not.toBeVisible();
+    await expect(page.getByRole("button", { name: /User Account Settings/i })).toBeVisible();
 
-    // Open AI Tutor
+    // Open AI Tutor from Header
     const aiBtn = page.locator("header").getByRole("button", { name: /Ask AI/i });
     await aiBtn.click();
 
     // Verify AI Tutor Dialog is visible
     await expect(page.getByText(/Personal AI Socratic Tutor/i)).toBeVisible();
     await expect(page.getByText(/Tuned for: elementary/i)).toBeVisible();
+
+    // Switch to Worked Example mode
+    await page.getByRole("button", { name: "Worked Example", exact: true }).click();
+
+    // Type and send a question
+    const input = page.getByPlaceholder(/Ask a question, request a hint/i);
+    await input.fill("What is a fraction?");
+    await input.press("Enter");
+
+    // Verify AI tutor response appears
+    await expect(page.getByText(/Step 1|pizza|delicious/i).first()).toBeVisible({ timeout: 10000 });
+
+    // Open Voice Controls
+    const voiceBtn = page.getByRole("button", { name: /Voice & Speed Settings/i });
+    await voiceBtn.click({ force: true });
+    await expect(page.getByText(/Speech Speed:/i)).toBeVisible();
+
+    // Close AI Tutor modal
+    await page.getByRole("button", { name: /Close AI Tutor dialog/i }).click({ force: true });
+    await expect(page.getByText(/Personal AI Socratic Tutor/i)).not.toBeVisible();
   });
 
   test("signs in with demo parent account and accesses Parent Portal", async ({ page }) => {

@@ -54,7 +54,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
         setErrorMessage(res.error);
       } else {
         onClose();
-        window.location.reload();
       }
     } catch (err: any) {
       setErrorMessage("An unexpected error occurred during sign in.");
@@ -80,7 +79,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
         setErrorMessage(res.error);
       } else {
         onClose();
-        window.location.reload();
       }
     } catch (err: any) {
       setErrorMessage("Could not sign in to demo account.");
@@ -125,7 +123,6 @@ export function AuthModal({ isOpen, onClose, initialMode = "signin" }: AuthModal
           password,
         });
         onClose();
-        window.location.reload();
       }
     } catch (err: any) {
       setErrorMessage("Registration failed. Please check your connection.");

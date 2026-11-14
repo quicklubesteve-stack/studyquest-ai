@@ -96,20 +96,42 @@
 
 ---
 
-## Phase 3: Personalized AI Tutor Engine & Gemini Integration (Next)
+## Phase 3: Personalized AI Tutor Engine & Gemini Integration (Completed)
 
-- [ ] **Server-Side Gemini AI Service (`src/lib/ai/gemini.ts`)**:
-  - Server-side route handler `/api/tutor/chat` with rate limiting, input validation, and safety shields.
-  - Grounding in reviewed curriculum metadata and grade-level personas (Kindergarten through Senior adult).
-  - Structured Socratic inquiry prompts: provide hints and worked examples without doing assignments for the student.
-  - "Check for Understanding" response validation with Zod schemas.
-- [ ] **Multimodal Voice & Chat Tutor UI (`src/components/tutor/AITutorModal.tsx`)**:
-  - Live conversational UI with Socratic hint levels, worked examples, and "Teach-the-AI" mode.
-  - Integrated Web Speech API (SpeechRecognition and SpeechSynthesis) with graceful text-only fallback.
-  - Voice speed controls (0.75x to 1.5x) and full transcript logging.
-- [ ] **AI Safety, Child Safeguards & Citations**:
-  - PII scrubbing before sending payloads to AI provider.
-  - Explicit citations to approved curriculum topics and refusal to hallucinate facts.
-- [ ] **Phase 3 Test Suite**:
-  - Vitest tests for prompt generation, response schema validation, and fallback handling when API key is missing.
-  - Playwright E2E tests for Socratic dialogue, voice control toggles, and "Teach-the-AI" interaction.
+- [x] **Server-Side AI Dispatcher (`src/lib/ai/engine.ts`, `src/lib/ai/prompts.ts`, `/api/tutor/chat`)**:
+  - Live Gemini API integration using official `@google/genai` SDK (`gemini-1.5-flash`).
+  - Intelligent deterministic Socratic engine (`DeterministicSocraticEngine`) providing pedagogical fallback when `GEMINI_API_KEY` is not present, offline, or network-blocked.
+  - Rate-limited POST route (`/api/tutor/chat`) with IP sliding-window protection and Zod validation.
+  - Persona system adapting to 5 education stages: Kindergarten (Questie the Fox), Elementary (Captain Quest), High School (QuestMentor), College (Professor Quest), and Adult (StudyQuest Advisor).
+  - 5 pedagogical modes: Socratic Hints, Worked Examples, Teach-the-AI (Feynman technique), Practice Challenge Generator, and Mistake Breakdown.
+- [x] **Safety, Privacy & COPPA/PIPEDA Compliance (`src/lib/ai/safety.ts`)**:
+  - Automated client PII scrubbing redacting emails, phone numbers, postal codes, US zip codes, and credit cards before sending payloads.
+  - Proactive safeguards blocking cheating queries ("do my test for me") with pedagogical encouragement.
+  - Factual curriculum grounding citing approved lessons and refusing hallucinated facts.
+- [x] **Multimodal Conversational UI (`src/components/tutor/AITutorModal.tsx`)**:
+  - Tabbed mode switcher with instant quick-action prompts.
+  - Interactive next-action follow-up buttons returned by the AI.
+  - Web Speech API integration: SpeechRecognition for spoken input and SpeechSynthesis for read-aloud playback with 4-tier speed control (0.75x to 1.5x).
+  - Responsive layout with isolated inner scroll container preserving viewport position across mobile (375px) and desktop viewports.
+- [x] **Phase 3 Verification**:
+  - 28 passing Vitest tests (7 dedicated tutor tests covering PII sanitization, content safety, prompt construction, and Socratic fallbacks).
+  - 10 passing Playwright E2E browser tests across Desktop Chrome and Mobile Chrome.
+  - 0-error production build (`next build`) across all 9 static and dynamic API routes.
+
+---
+
+## Phase 4: Full Multi-Modal Activity Components & Interactive Challenges (Next)
+
+- [ ] **Interactive Activity Suite (`src/components/activities/`)**:
+  - Fill-in-the-blank challenges with keyboard navigation.
+  - Matching games and memory challenges with accessible tile-selection.
+  - Drag-and-drop puzzles with keyboard ARIA alternative controls.
+  - Flashcard challenges with flip animations and active recall confidence scoring.
+  - Word searches and vocabulary challenges.
+  - Science simulations & math problem solvers.
+- [ ] **Spaced Repetition & Daily Review Center**:
+  - Flashcard review queue powered by Leitner box scheduling.
+  - Daily mission challenges with XP rewards.
+- [ ] **Phase 4 Verification**:
+  - Unit tests for activity state logic and scoring.
+  - E2E browser tests covering all activity types across mobile and desktop.
