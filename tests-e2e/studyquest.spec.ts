@@ -310,4 +310,60 @@ test.describe("StudyQuest AI — Core Application & Phase 2 Journeys", () => {
     await page.getByRole("button", { name: /Close Spaced Repetition Center/i }).click({ force: true });
     await expect(page.getByText(/Spaced Repetition & Recall Center/i)).not.toBeVisible();
   });
+
+  test("uploads study material, generates flashcards & quiz, and queries grounded citations", async ({ page }) => {
+    await page.addInitScript(() => {
+      const profile = {
+        id: "test-user-materials",
+        name: "Test Researcher",
+        educationTier: "high_school",
+        selectedSubjects: ["biology"],
+        learningGoal: "exam_prep",
+        dailyStudyMinutes: 20,
+        learningPreference: "reading_writing",
+        wantsPlacementQuiz: false,
+        isOnboarded: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem("studyquest_user_profile_v1", JSON.stringify(profile));
+    });
+    await page.goto("/");
+    await expect(page.getByRole("heading", { name: /Learn Your Way. Play Your Way. Grow Every Day./i })).toBeVisible();
+
+    // Open Study Notes Studio
+    await page.getByRole("button", { name: /Study Notes Studio/i }).click({ force: true });
+    await expect(page.getByText(/Study Material Studio & AI Synthesizer/i)).toBeVisible();
+
+    // Add built-in sample document: Biology_Cellular_Respiration
+    await page.getByRole("button", { name: /Biology_Cellular_Respiration/i }).click({ force: true });
+
+    // Verify Document Analysis
+    await expect(page.getByText(/Executive Overview: Biology_Cellular_Respiration/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/Key Defined Concepts/i)).toBeVisible();
+
+    // Switch to Study Notes Tab
+    await page.getByRole("button", { name: "Study Notes", exact: true }).click({ force: true });
+    await expect(page.getByText(/# Study Notes: Biology_Cellular_Respiration/i)).toBeVisible();
+
+    // Switch to 5-Day Study Plan Tab
+    await page.getByRole("button", { name: /5-Day Study Plan/i }).click({ force: true });
+    await expect(page.getByText(/# 5-Day Study Quest:/i)).toBeVisible();
+
+    // Switch to Ask Document (Citations) Tab
+    await page.getByRole("button", { name: /Ask Document/i }).click({ force: true });
+    await expect(page.getByPlaceholder(/e.g. What is the role of the electron transport chain\?/i)).toBeVisible();
+
+    // Query Grounded Q&A
+    await page.getByPlaceholder(/e.g. What is the role of the electron transport chain\?/i).fill("What occurs during glycolysis in the cytoplasm?");
+    await page.getByRole("button", { name: "Ask", exact: true }).click({ force: true });
+
+    // Verify Grounded Citation
+    await expect(page.getByText(/Grounded Explanation/i)).toBeVisible({ timeout: 10000 });
+    await expect(page.getByText(/Citation: Biology_Cellular_Respiration/i)).toBeVisible();
+
+    // Close Study Notes Studio
+    await page.getByRole("button", { name: /Close Study Material Studio/i }).click({ force: true });
+    await expect(page.getByText(/Study Material Studio & AI Synthesizer/i)).not.toBeVisible();
+  });
 });

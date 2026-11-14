@@ -25,9 +25,10 @@ import {
 import { AITutorModal } from "@/components/tutor/AITutorModal";
 import { ActivityHubModal } from "@/components/activities/ActivityHubModal";
 import { SpacedRepetitionCenterModal } from "@/components/activities/SpacedRepetitionCenterModal";
+import StudyMaterialsModal from "@/components/materials/StudyMaterialsModal";
 
 export function Dashboard({ onOpenOnboarding }: { onOpenOnboarding?: () => void }) {
-  const { profile, progress, setActiveLesson, a11y } = useAppStore();
+  const { profile, progress, setActiveLesson, a11y, recordActivity } = useAppStore();
   const [selectedTierFilter, setSelectedTierFilter] = useState<EducationTier | "all">(
     profile.educationTier
   );
@@ -36,6 +37,7 @@ export function Dashboard({ onOpenOnboarding }: { onOpenOnboarding?: () => void 
   const [showPricingModal, setShowPricingModal] = useState(false);
   const [showActivityHub, setShowActivityHub] = useState(false);
   const [showSpacedRepModal, setShowSpacedRepModal] = useState(false);
+  const [showMaterialsModal, setShowMaterialsModal] = useState(false);
 
   // Identify next or first lesson to "Continue Learning"
   const allLessons: Lesson[] = SAMPLE_CURRICULUM.flatMap((cat) => cat.lessons);
@@ -105,6 +107,14 @@ export function Dashboard({ onOpenOnboarding }: { onOpenOnboarding?: () => void 
             >
               <Gamepad2 className="w-4 h-4 text-slate-900" />
               <span>Learning Arcade</span>
+            </button>
+
+            <button
+              onClick={() => setShowMaterialsModal(true)}
+              className="px-5 py-3 bg-emerald-500 hover:bg-emerald-400 text-white font-extrabold text-xs sm:text-sm rounded-xl shadow-lg transition flex items-center space-x-2"
+            >
+              <BookOpen className="w-4 h-4 text-white" />
+              <span>Study Notes Studio</span>
             </button>
           </div>
         </div>
@@ -457,6 +467,16 @@ export function Dashboard({ onOpenOnboarding }: { onOpenOnboarding?: () => void 
 
       {/* Spaced Repetition Center Modal */}
       {showSpacedRepModal && <SpacedRepetitionCenterModal onClose={() => setShowSpacedRepModal(false)} />}
+
+      {/* Study Materials & Document Intelligence Modal */}
+      {showMaterialsModal && (
+        <StudyMaterialsModal
+          isOpen={showMaterialsModal}
+          onClose={() => setShowMaterialsModal(false)}
+          educationTier={profile.educationTier}
+          onEarnXP={(amount) => recordActivity(amount)}
+        />
+      )}
     </div>
   );
 }

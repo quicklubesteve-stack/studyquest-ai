@@ -38,6 +38,9 @@ model User {
 
   // Classrooms taught (if Teacher)
   teachingClasses Classroom[] @relation("ClassroomTeacher")
+
+  // Study Materials uploaded by user
+  studyMaterials  StudyMaterial[]
 }
 
 model Profile {
@@ -134,3 +137,22 @@ model Session {
   expires      DateTime
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
+
+model StudyMaterial {
+  id            String   @id @default(cuid())
+  userId        String
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fileName      String
+  fileType      String   // "pdf", "docx", "txt", "md"
+  fileSize      Int      // in bytes
+  extractedText String   // extracted raw text
+  summary       String?  // auto-generated summary
+  keyConcepts   String?  // JSON serialized string array
+  studyNotes    String?  // Markdown structured study notes
+  flashcards    String?  // JSON serialized Flashcard[]
+  quizQuestions String?  // JSON serialized Question[]
+  studyPlan     String?  // Markdown structured study plan
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+}
+
