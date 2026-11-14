@@ -20,8 +20,11 @@ import {
   Layers,
   Crown,
   Search,
+  Gamepad2,
 } from "lucide-react";
 import { AITutorModal } from "@/components/tutor/AITutorModal";
+import { ActivityHubModal } from "@/components/activities/ActivityHubModal";
+import { SpacedRepetitionCenterModal } from "@/components/activities/SpacedRepetitionCenterModal";
 
 export function Dashboard({ onOpenOnboarding }: { onOpenOnboarding?: () => void }) {
   const { profile, progress, setActiveLesson, a11y } = useAppStore();
@@ -31,6 +34,8 @@ export function Dashboard({ onOpenOnboarding }: { onOpenOnboarding?: () => void 
   const [searchQuery, setSearchQuery] = useState("");
   const [showTutor, setShowTutor] = useState(false);
   const [showPricingModal, setShowPricingModal] = useState(false);
+  const [showActivityHub, setShowActivityHub] = useState(false);
+  const [showSpacedRepModal, setShowSpacedRepModal] = useState(false);
 
   // Identify next or first lesson to "Continue Learning"
   const allLessons: Lesson[] = SAMPLE_CURRICULUM.flatMap((cat) => cat.lessons);
@@ -92,6 +97,14 @@ export function Dashboard({ onOpenOnboarding }: { onOpenOnboarding?: () => void 
             >
               <Bot className="w-4 h-4" />
               <span>Ask AI Tutor</span>
+            </button>
+
+            <button
+              onClick={() => setShowActivityHub(true)}
+              className="px-5 py-3 bg-amber-400 hover:bg-amber-300 text-slate-900 font-extrabold text-xs sm:text-sm rounded-xl shadow-lg transition flex items-center space-x-2"
+            >
+              <Gamepad2 className="w-4 h-4 text-slate-900" />
+              <span>Learning Arcade</span>
             </button>
           </div>
         </div>
@@ -184,10 +197,13 @@ export function Dashboard({ onOpenOnboarding }: { onOpenOnboarding?: () => void 
           </div>
 
           <div className="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between text-xs">
-            <span className="text-slate-500">Upcoming review:</span>
-            <span className="font-bold text-emerald-700 bg-emerald-50 px-2 py-0.5 rounded">
-              Tomorrow morning
-            </span>
+            <span className="text-slate-500">Active Recall:</span>
+            <button
+              onClick={() => setShowSpacedRepModal(true)}
+              className="font-bold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 px-3 py-1 rounded-full border border-emerald-200 transition"
+            >
+              Start Recall Drill →
+            </button>
           </div>
         </div>
       </div>
@@ -435,6 +451,12 @@ export function Dashboard({ onOpenOnboarding }: { onOpenOnboarding?: () => void 
 
       {/* AI Tutor Modal */}
       {showTutor && <AITutorModal onClose={() => setShowTutor(false)} />}
+
+      {/* Learning Arcade Modal */}
+      {showActivityHub && <ActivityHubModal onClose={() => setShowActivityHub(false)} />}
+
+      {/* Spaced Repetition Center Modal */}
+      {showSpacedRepModal && <SpacedRepetitionCenterModal onClose={() => setShowSpacedRepModal(false)} />}
     </div>
   );
 }

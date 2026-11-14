@@ -241,4 +241,73 @@ test.describe("StudyQuest AI — Core Application & Phase 2 Journeys", () => {
     await textScaleBtn.click();
     await expect(html).toHaveClass(/text-scale-large/);
   });
+
+  test("explores Interactive Learning Arcade and Spaced Repetition Center", async ({ page }) => {
+    await page.addInitScript(() => {
+      const profile = {
+        id: "activity-user",
+        name: "Activity Explorer",
+        educationTier: "elementary",
+        selectedSubjects: ["elem-math"],
+        learningGoal: "skill_building",
+        dailyStudyMinutes: 15,
+        learningPreference: "mixed",
+        wantsPlacementQuiz: false,
+        isOnboarded: true,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      };
+      localStorage.setItem("studyquest_user_profile_v1", JSON.stringify(profile));
+    });
+    await page.goto("/");
+
+    // Open Learning Arcade from Dashboard Hero
+    const arcadeBtn = page.getByRole("button", { name: /Learning Arcade/i });
+    await arcadeBtn.click({ force: true });
+
+    // Verify Arcade Modal opens
+    await expect(page.getByText(/Interactive Learning Arcade/i)).toBeVisible();
+    await expect(page.getByText(/Flashcard Challenge/i)).toBeVisible();
+    await expect(page.getByText(/Concept Matching Game/i)).toBeVisible();
+
+    // Launch Flashcards Activity
+    await page.getByRole("button", { name: /Flashcard Challenge/i }).click();
+    await expect(page.getByText(/Card 1 of/i)).toBeVisible();
+
+    // Flip flashcard
+    await page.getByRole("button", { name: /Reveal Answer/i }).click({ force: true });
+    await expect(page.getByText(/How well did you know this\?/i)).toBeVisible();
+
+    // Rate card "Mastered!"
+    await page.getByRole("button", { name: /Mastered!/i }).click({ force: true });
+
+    // Return to Arcade Menu
+    await page.getByRole("button", { name: /Back to Activities Menu/i }).click({ force: true });
+    await expect(page.getByText(/Flashcard Challenge/i)).toBeVisible();
+
+    // Launch Word Search Activity
+    await page.getByRole("button", { name: /Vocabulary Word Search/i }).click({ force: true });
+    await expect(page.getByText(/Academic Vocabulary Word Search/i)).toBeVisible();
+
+    // Click on FRACTION word button
+    await page.getByRole("button", { name: /FRACTION/i }).first().click({ force: true });
+    await expect(page.getByText(/Definition: FRACTION/i)).toBeVisible();
+
+    // Close Activity Hub
+    await page.getByRole("button", { name: /Close Activity Arcade/i }).click({ force: true });
+    await expect(page.getByText(/Interactive Learning Arcade/i)).not.toBeVisible();
+
+    // Open Spaced Repetition Center from Dashboard Card
+    await page.getByRole("button", { name: /Start Recall Drill/i }).click({ force: true });
+    await expect(page.getByText(/Spaced Repetition & Recall Center/i)).toBeVisible();
+
+    // Switch to Memory Box Stats
+    await page.getByRole("button", { name: /Memory Box Stats/i }).click({ force: true });
+    await expect(page.getByText(/How Leitner Spaced Repetition Works/i)).toBeVisible();
+    await expect(page.getByText(/Box 1 \(Daily\)/i)).toBeVisible();
+
+    // Close Spaced Repetition Center
+    await page.getByRole("button", { name: /Close Spaced Repetition Center/i }).click({ force: true });
+    await expect(page.getByText(/Spaced Repetition & Recall Center/i)).not.toBeVisible();
+  });
 });

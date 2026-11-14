@@ -123,3 +123,41 @@ export interface AccessibilitySettings {
   speechRate: number; // 0.8 to 1.5
   audioEnabled: boolean;
 }
+
+export interface Flashcard {
+  id: string;
+  front: string;
+  back: string;
+  hint?: string;
+  category: string;
+  boxLevel: number; // 1 to 5 Leitner box
+}
+
+export interface MatchingPair {
+  id: string;
+  left: string;
+  right: string;
+  category: string;
+}
+
+export interface FillBlankChallenge {
+  id: string;
+  sentenceParts: [string, string]; // [before, after]
+  blankAnswer: string;
+  options: string[];
+  explanation: string;
+  hint: string;
+}
+
+export interface SequencePuzzleItem {
+  id: string;
+  text: string;
+  correctIndex: number;
+}
+
+export interface MemoryCard {
+  id: string;
+  pairId: string;
+  content: string;
+  type: "text" | "emoji" | "formula";
+}
