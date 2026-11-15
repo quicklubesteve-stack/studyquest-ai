@@ -35,6 +35,10 @@ yarn-error.log*
 *.db
 *.db-journal
 
+# local shortcuts
+*.lnk
+*.url
+
 # vercel
 .vercel
 
